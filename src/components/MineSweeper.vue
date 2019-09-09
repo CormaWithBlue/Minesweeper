@@ -173,7 +173,6 @@ export default {
         this.inerval = setInterval(() => {
           this.second++;
           this.second = Math.round(this.second);
-          console.log("second:" + this.second);
         }, 1000);
       }
     },
