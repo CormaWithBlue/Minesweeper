@@ -3,19 +3,19 @@
   <div class="wholePageHard">
     <!-- 操作按钮区域 -->
     <div class="optionOfDegree">
-      <select v-model="setions" id="select" @change="changeDiamond($event)">
-        <option value='' disabled selected style='display:none;'>please choose</option>
-        <option name ="easy" value ="easy" id="easy">easy</option>
-        <option name ="medium" value ="medium" id="medium">medium</option>
-        <option name ="hard" value ="hard" id="hard">hard</option>
+      <select v-model="selects" id="select" @change="changeDiamond($event)">
+        <option value disabled selected style="display:none;">please choose</option>
+        <option name="easy" value="easy" id="easy">Easy</option>
+        <option name="medium" value="medium" id="medium">Medium</option>
+        <option name="hard" value="hard" id="hard">Hard</option>
       </select>
-      
-      <button v-on:click="initGame()">开始/重置</button>
+
+      <button v-on:click="initGame()">start/reset</button>
       <!-- <a>&nbsp;&nbsp;&nbsp;&nbsp;请输入雷数:</a>
-      <input v-model="remainMineNum" style="width:30px" /> -->
-      <a>&nbsp;&nbsp;&nbsp;&nbsp;剩余雷数：{{remainMineNum}}个</a>
+      <input v-model="remainMineNum" style="width:30px" />-->
+      <a>&nbsp;&nbsp;&nbsp;&nbsp;RemainMineNum：{{remainMineNum-flagNum}}个</a>
       <a>
-        &nbsp;&nbsp;&nbsp;&nbsp;计时器:{{Math.floor(second/60) > 9 ? Math.floor(second/60) : '0'
+        &nbsp;&nbsp;&nbsp;&nbsp;Time:{{Math.floor(second/60) > 9 ? Math.floor(second/60) : '0'
         + (Math.floor(second/60))}}:{{second%60 > 9 ? second%60 : '0' + (second%60)}}
       </a>
     </div>
@@ -65,30 +65,42 @@ export default {
   name: "MineSweeper",
   data() {
     return {
-      setions:"",
       statusNow: [],
       mineSweeperWidth: 16,
       mineSweeperHeight: 30,
       remainMineNum: 100,
       second: 0,
-      inerval: null
+      inerval: null,
+      selects: "",
+      flagNum: 0
     };
   },
   created() {
     this.initGame();
   },
   methods: {
-    changeDiamond:function(e){
-      console.log(this.setions)
-      if("easy" == this.setions){
-        alert("easy")
-      }else if("medium" == this.setions){
-        alert("medium")
-      }else if("hard" == this.setions){
-        alert("hard")
+    changeDiamond: function(e) {
+      console.log(this.selects);
+      if ("easy" == this.selects) {
+        // alert("easy");
+        this.remainMineNum = 5;
+        this.mineSweeperWidth = 10;
+        this.mineSweeperHeight = 10;
+      } else if ("medium" == this.selects) {
+        // alert("medium");
+        this.remainMineNum = 10;
+        this.mineSweeperWidth = 12;
+        this.mineSweeperHeight = 20;
+      } else if ("hard" == this.selects) {
+        // alert("hard");
+        this.remainMineNum = 20;
+        this.mineSweeperWidth = 16;
+        this.mineSweeperHeight = 30;
       }
+      console.log(JSON.stringify(this.statusNow));
+      this.initGame();
+      console.log(JSON.stringify(this.statusNow));
     },
-
 
     clickBoom(event, i, j) {
       // 判断点击了左键还是右键
@@ -133,11 +145,14 @@ export default {
           return false;
         };
         // alert("右键点了第" + (i + 1) + "行，第" + (j + 1) + "列");
+
         if (1 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 13;
+          this.flagNum++;
           Vue.set(this.statusNow, i, this.statusNow[i]);
         } else if (2 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 14;
+          this.flagNum++;
           Vue.set(this.statusNow, i, this.statusNow[i]);
           var statusNowNum = 0;
           for (var i = 0; i < this.mineSweeperWidth; i++) {
@@ -155,9 +170,11 @@ export default {
           }
         } else if (13 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 1;
+          this.flagNum--;
           Vue.set(this.statusNow, i, this.statusNow[i]);
         } else if (14 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 2;
+          this.flagNum--;
           Vue.set(this.statusNow, i, this.statusNow[i]);
         }
       } else {
@@ -168,19 +185,29 @@ export default {
     },
     initGame: function() {
       console.log("init once");
+      this.statusNow = [];
       for (var i = 0; i < this.mineSweeperWidth; i++) {
         this.statusNow[i] = [];
         for (var j = 0; j < this.mineSweeperHeight; j++) {
           this.statusNow[i][j] = 1;
         }
       }
+      this.flagNum = 0;
       //this.statusNow[Math.floor(first / 30)][first % 30] = 2;
 
       var i = 0;
       while (true) {
-        var first = Math.floor(Math.random() * 480);
-        if (this.statusNow[first % 16][first % 30] != 2) {
-          this.statusNow[first % 16][first % 30] = 2;
+        var first = Math.floor(
+          Math.random() * (this.mineSweeperHeight * this.mineSweeperWidth)
+        );
+        if (
+          this.statusNow[first % this.mineSweeperWidth][
+            first % this.mineSweeperHeight
+          ] != 2
+        ) {
+          this.statusNow[first % this.mineSweeperWidth][
+            first % this.mineSweeperHeight
+          ] = 2;
           if (++i >= this.remainMineNum) {
             break;
           }
@@ -244,7 +271,7 @@ export default {
       if (
         //判断右上角雷的个数
         i > 0 &&
-        j < 29 &&
+        j < this.mineSweeperHeight - 1 &&
         (2 == this.statusNow[i - 1][j + 1] ||
           3 == this.statusNow[i - 1][j + 1] ||
           14 == this.statusNow[i - 1][j + 1])
@@ -262,7 +289,7 @@ export default {
       }
       if (
         //判断正右侧雷的个数
-        j < 29 &&
+        j < this.mineSweeperHeight - 1 &&
         (2 == this.statusNow[i][j + 1] ||
           3 == this.statusNow[i][j + 1] ||
           14 == this.statusNow[i][j + 1])
@@ -271,7 +298,7 @@ export default {
       }
       if (
         //判断左下角雷的个数
-        i < 15 &&
+        i < this.mineSweeperWidth - 1 &&
         j > 0 &&
         (2 == this.statusNow[i + 1][j - 1] ||
           3 == this.statusNow[i + 1][j - 1] ||
@@ -281,7 +308,7 @@ export default {
       }
       if (
         //判断正下方雷的个数
-        i < 15 &&
+        i < this.mineSweeperWidth - 1 &&
         (2 == this.statusNow[i + 1][j] ||
           3 == this.statusNow[i + 1][j] ||
           14 == this.statusNow[i + 1][j])
@@ -290,8 +317,8 @@ export default {
       }
       if (
         //判断右下角雷的个数
-        i < 15 &&
-        j < 29 &&
+        i < this.mineSweeperWidth - 1 &&
+        j < this.mineSweeperHeight - 1 &&
         (2 == this.statusNow[i + 1][j + 1] ||
           3 == this.statusNow[i + 1][j + 1] ||
           14 == this.statusNow[i + 1][j + 1])
@@ -320,7 +347,7 @@ export default {
         if (
           //揭开右上角
           i > 0 &&
-          j < 29 &&
+          j < this.mineSweeperHeight - 1 &&
           1 == this.statusNow[i - 1][j + 1]
           // ||13 == this.statusNow[i - 1][j + 1]
         ) {
@@ -336,7 +363,7 @@ export default {
         }
         if (
           //揭开正右侧
-          j < 29 &&
+          j < this.mineSweeperHeight - 1 &&
           1 == this.statusNow[i][j + 1]
           // || 13 == this.statusNow[i][j + 1]
         ) {
@@ -344,7 +371,7 @@ export default {
         }
         if (
           //揭开左下角
-          i < 15 &&
+          i < this.mineSweeperWidth - 1 &&
           j > 0 &&
           1 == this.statusNow[i + 1][j - 1]
           //  ||13 == this.statusNow[i + 1][j - 1]
@@ -353,7 +380,7 @@ export default {
         }
         if (
           //揭开正下方
-          i < 15 &&
+          i < this.mineSweeperWidth - 1 &&
           1 == this.statusNow[i + 1][j]
           //  13 == this.statusNow[i + 1][j]
         ) {
@@ -361,8 +388,8 @@ export default {
         }
         if (
           //揭开右下角
-          i < 15 &&
-          j < 29 &&
+          i < this.mineSweeperWidth - 1 &&
+          j < this.mineSweeperHeight - 1 &&
           1 == this.statusNow[i + 1][j + 1]
           //  ||13 == this.statusNow[i + 1][j + 1]
         ) {
@@ -433,7 +460,6 @@ export default {
   /* float: left; */
   /* top: 10px;
   left: 10px; */
-
   margin-right: 1px;
   margin-bottom: 1px;
   /* margin: auto, auto; */
