@@ -1,11 +1,18 @@
 <template>
   <!-- 最外层，包括难度选项、关闭、重启、倒计时 -->
-  <div class="wholePage">
+  <div class="wholePageHard">
     <!-- 操作按钮区域 -->
     <div class="optionOfDegree">
+      <select v-model="setions" id="select" @change="changeDiamond($event)">
+        <option value='' disabled selected style='display:none;'>please choose</option>
+        <option name ="easy" value ="easy" id="easy">easy</option>
+        <option name ="medium" value ="medium" id="medium">medium</option>
+        <option name ="hard" value ="hard" id="hard">hard</option>
+      </select>
+      
       <button v-on:click="initGame()">开始/重置</button>
-      <a>&nbsp;&nbsp;&nbsp;&nbsp;请输入雷数:</a>
-      <input v-model="remainMineNum" style="width:30px" />
+      <!-- <a>&nbsp;&nbsp;&nbsp;&nbsp;请输入雷数:</a>
+      <input v-model="remainMineNum" style="width:30px" /> -->
       <a>&nbsp;&nbsp;&nbsp;&nbsp;剩余雷数：{{remainMineNum}}个</a>
       <a>
         &nbsp;&nbsp;&nbsp;&nbsp;计时器:{{Math.floor(second/60) > 9 ? Math.floor(second/60) : '0'
@@ -58,10 +65,11 @@ export default {
   name: "MineSweeper",
   data() {
     return {
+      setions:"",
       statusNow: [],
       mineSweeperWidth: 16,
       mineSweeperHeight: 30,
-      remainMineNum: 5,
+      remainMineNum: 100,
       second: 0,
       inerval: null
     };
@@ -70,6 +78,18 @@ export default {
     this.initGame();
   },
   methods: {
+    changeDiamond:function(e){
+      console.log(this.setions)
+      if("easy" == this.setions){
+        alert("easy")
+      }else if("medium" == this.setions){
+        alert("medium")
+      }else if("hard" == this.setions){
+        alert("hard")
+      }
+    },
+
+
     clickBoom(event, i, j) {
       // 判断点击了左键还是右键
       if (event.which === 1) {
@@ -358,7 +378,7 @@ export default {
 // <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 /* 最外的div */
-.wholePage {
+.wholePageHard {
   width: 550px;
   height: 361px;
   margin: 0 auto;
