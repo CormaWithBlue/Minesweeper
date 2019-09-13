@@ -1,29 +1,37 @@
 <template>
   <!-- 最外层，包括难度选项、关闭、重启、倒计时 -->
-  <div class="wholePageHard">
+  <div id="wholePage" :class="{wholePageEasy:isEasy,wholePageMedium:isMedium,wholePageHard:isHard}">
     <!-- 操作按钮区域 -->
-    <div class="optionOfDegree">
+    <div
+      id="optionOfDegree"
+      :class="{optionOfDegreeEasy:isEasy,optionOfDegreeMedium:isMedium,optionOfDegreeHard:isHard}"
+    >
       <select v-model="selects" id="select" @change="changeDiamond($event)">
-        <option value disabled selected style="display:none;">please choose</option>
-        <option name="easy" value="easy" id="easy">Easy</option>
+        <option name="easy" value="easy" id="easy" selected="selected">Easy</option>
         <option name="medium" value="medium" id="medium">Medium</option>
         <option name="hard" value="hard" id="hard">Hard</option>
       </select>
 
-      <button v-on:click="initGame()">start/reset</button>
-      <!-- <a>&nbsp;&nbsp;&nbsp;&nbsp;请输入雷数:</a>
-      <input v-model="remainMineNum" style="width:30px" />-->
-      <a>&nbsp;&nbsp;&nbsp;&nbsp;RemainMineNum：{{remainMineNum-flagNum}}个</a>
+      <button v-on:click="initGame()">start</button>
+
+      <a>&nbsp;&nbsp;&nbsp;&nbsp;MineNum：{{remainMineNum-flagNum}}个</a>
       <a>
         &nbsp;&nbsp;&nbsp;&nbsp;Time:{{Math.floor(second/60) > 9 ? Math.floor(second/60) : '0'
         + (Math.floor(second/60))}}:{{second%60 > 9 ? second%60 : '0' + (second%60)}}
       </a>
     </div>
     <!-- 包含所有小方格的大格子 -->
-    <div class="bigDiamond">
+    <div
+      id="bigDiamond"
+      :class="{bigDiamondEasy:isEasy,bigDiamondMedium:isMedium,bigDiamondHard:isHard}"
+    >
       <!-- 将statusNow的内容画在界面上  两个v-for  -->
       <!-- 遍历16行，并通过i记录遍历到了第几个 -->
-      <div v-for="(mineSweeperWidthItem,i) in statusNow" class="columnOfDiamond">
+      <div
+        v-for="(mineSweeperWidthItem,i) in statusNow"
+        id="columnOfDiamond"
+        :class="{columnOfDiamondEasy:isEasy,columnOfDiamondMedium:isMedium,columnOfDiamondHard:isHard}"
+      >
         <!-- 遍历30列，并通过j记录遍历到了第几个 -->
         <button
           v-for="(mineSweeperHeightItem,j) in mineSweeperWidthItem"
@@ -66,40 +74,58 @@ export default {
   data() {
     return {
       statusNow: [],
-      mineSweeperWidth: 16,
-      mineSweeperHeight: 30,
-      remainMineNum: 100,
       second: 0,
       inerval: null,
-      selects: "",
-      flagNum: 0
+      selects: "easy",
+      flagNum: 0,
+      choice: 1
     };
   },
   created() {
     this.initGame();
   },
+  computed: {
+    isEasy: function() {
+      return "easy" == this.selects;
+    },
+    isMedium: function() {
+      return "medium" == this.selects;
+    },
+    isHard: function() {
+      return "hard" == this.selects;
+    },
+    mineSweeperWidth: function() {
+      if ("easy" == this.selects) {
+        return 10;
+      } else if ("medium" == this.selects) {
+        return 12;
+      } else if ("hard" == this.selects) {
+        return 16;
+      }
+    },
+    mineSweeperHeight: function() {
+      if ("easy" == this.selects) {
+        return 15;
+      } else if ("medium" == this.selects) {
+        return 20;
+      } else if ("hard" == this.selects) {
+        return 30;
+      }
+    },
+    remainMineNum: function() {
+      if ("easy" == this.selects) {
+        return 10;
+      } else if ("medium" == this.selects) {
+        return 15;
+      } else if ("hard" == this.selects) {
+        return 24;
+      }
+    }
+  },
   methods: {
     changeDiamond: function(e) {
       console.log(this.selects);
-      if ("easy" == this.selects) {
-        // alert("easy");
-        this.remainMineNum = 5;
-        this.mineSweeperWidth = 10;
-        this.mineSweeperHeight = 10;
-      } else if ("medium" == this.selects) {
-        // alert("medium");
-        this.remainMineNum = 10;
-        this.mineSweeperWidth = 12;
-        this.mineSweeperHeight = 20;
-      } else if ("hard" == this.selects) {
-        // alert("hard");
-        this.remainMineNum = 20;
-        this.mineSweeperWidth = 16;
-        this.mineSweeperHeight = 30;
-      }
-      console.log(JSON.stringify(this.statusNow));
       this.initGame();
-      console.log(JSON.stringify(this.statusNow));
     },
 
     clickBoom(event, i, j) {
@@ -405,6 +431,24 @@ export default {
 // <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 /* 最外的div */
+.wholePageEasy {
+  width: 295px;
+  height: 271px;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 5px;
+  border: 2px solid black;
+  box-shadow: 8px 8px 30px 5px gray;
+}
+.wholePageMedium {
+  width: 380px;
+  height: 301px;
+  margin: 0 auto;
+  background-color: white;
+  border-radius: 5px;
+  border: 2px solid black;
+  box-shadow: 8px 8px 30px 5px gray;
+}
 .wholePageHard {
   width: 550px;
   height: 361px;
@@ -415,7 +459,33 @@ export default {
   box-shadow: 8px 8px 30px 5px gray;
 }
 /* 难度选项 */
-.optionOfDegree {
+.optionOfDegreeEasy {
+  width: 275px;
+  height: 40px;
+  background-color: rgb(240, 243, 244);
+  position: relative;
+  top: 10px;
+  left: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: auto;
+  border-radius: 5px;
+  font-size: 3px;
+}
+.optionOfDegreeMedium {
+  width: 360px;
+  height: 30px;
+  background-color: rgb(240, 243, 244);
+  position: relative;
+  top: 10px;
+  left: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: left;
+  border-radius: 5px;
+  font-size: 15px;
+}
+.optionOfDegreeHard {
   width: 530px;
   height: 30px;
   background-color: rgb(240, 243, 244);
@@ -428,7 +498,29 @@ export default {
   border-radius: 5px;
 }
 /* 包含所有小格子的大div */
-.bigDiamond {
+.bigDiamondEasy {
+  width: 275px;
+  height: 190px;
+  background-color: rgb(240, 243, 244);
+  position: relative;
+  top: 10px;
+  left: 10px;
+  border-radius: 5px;
+  /* margin-right: 1px; */
+  /* margin-bottom: 1px; */
+}
+.bigDiamondMedium {
+  width: 360px;
+  height: 225px;
+  background-color: rgb(240, 243, 244);
+  position: relative;
+  top: 10px;
+  left: 10px;
+  border-radius: 5px;
+  /* margin-right: 1px; */
+  /* margin-bottom: 1px; */
+}
+.bigDiamondHard {
   width: 530px;
   height: 291px;
   background-color: rgb(240, 243, 244);
@@ -440,7 +532,31 @@ export default {
   /* margin-bottom: 1px; */
 }
 /* 所有行的样式 */
-.columnOfDiamond {
+.columnOfDiamondEasy {
+  width: 255px;
+  height: 16px;
+  background-color: white;
+  position: relative;
+  top: 10px;
+  left: 10px;
+
+  /* margin-right: 1px; */
+  margin-bottom: 1px;
+  font-size: 15px;
+}
+.columnOfDiamondMedium {
+  width: 340px;
+  height: 16px;
+  background-color: white;
+  position: relative;
+  top: 10px;
+  left: 10px;
+
+  /* margin-right: 1px; */
+  margin-bottom: 1px;
+  font-size: 15px;
+}
+.columnOfDiamondHard {
   width: 510px;
   height: 16px;
   background-color: white;
@@ -450,6 +566,7 @@ export default {
 
   /* margin-right: 1px; */
   margin-bottom: 1px;
+  font-size: 15px;
 }
 /* 所有列的样式 */
 .littleDiamond {
@@ -457,7 +574,7 @@ export default {
   height: 16px;
   position: relative;
   display: inline-block;
-  /* float: left; */
+  float: none;
   /* top: 10px;
   left: 10px; */
   margin-right: 1px;
