@@ -243,7 +243,7 @@ export default {
 
       this.second = 0;
       if (this.inerval == null) {
-        this.inerval = setInterval(() => {
+        this.inerval = setInterval(function() {
           this.second++;
           this.second = Math.round(this.second);
         }, 1000);
