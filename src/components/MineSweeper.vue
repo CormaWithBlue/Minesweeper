@@ -78,7 +78,8 @@ export default {
       inerval: null,
       selects: "easy",
       flagNum: 0,
-      choice: 1
+      choice: 1,
+      step:0
     };
   },
   created() {
@@ -129,6 +130,7 @@ export default {
     },
 
     clickBoom(event, i, j) {
+ 
       // 判断点击了左键还是右键
       if (event.which === 1) {
         // alert("左键点了第" + (i + 1) + "行，第" + (j + 1) + "列");
@@ -136,10 +138,10 @@ export default {
         if (1 == this.statusNow[i][j]) {
           //判断周围8个小格子有没有雷
           this.statusNow[i][j] = this.eightDiamond(i, j);
-          Vue.set(this.statusNow, i, this.statusNow[i]);
+          //this.step++
         } else if (2 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 3;
-          Vue.set(this.statusNow, i, this.statusNow[i]);
+          //this.step++
           //点中雷，游戏结束，把所有的雷都显示出来
           for (var i = 0; i < this.mineSweeperWidth; i++) {
             // this.statusNow[i] = [];
@@ -152,15 +154,16 @@ export default {
               }
             }
           }
-          // Vue.set(this.statusNow, i, this.statusNow[i]);
           setTimeout(() => {
             alert("Game Over! Try Again!");
             clearInterval(this.inerval);
             this.inerval = null;
             this.initGame();
-            Vue.set(this.statusNow, 0, this.statusNow[0]);
+            this.step++
           }, 100);
         }
+        //this.step++
+        Vue.set(this.statusNow, i, this.statusNow[i])
         //  else if (3 == this.statusNow[i][j]) {
         //   this.statusNow[i][j] = 2;
         //   //点中雷，游戏结束，把所有的雷都显示出来
@@ -175,11 +178,9 @@ export default {
         if (1 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 13;
           this.flagNum++;
-          Vue.set(this.statusNow, i, this.statusNow[i]);
         } else if (2 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 14;
           this.flagNum++;
-          Vue.set(this.statusNow, i, this.statusNow[i]);
           var statusNowNum = 0;
           for (var i = 0; i < this.mineSweeperWidth; i++) {
             for (var j = 0; j < this.mineSweeperHeight; j++) {
@@ -197,12 +198,12 @@ export default {
         } else if (13 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 1;
           this.flagNum--;
-          Vue.set(this.statusNow, i, this.statusNow[i]);
         } else if (14 == this.statusNow[i][j]) {
           this.statusNow[i][j] = 2;
-          this.flagNum--;
-          Vue.set(this.statusNow, i, this.statusNow[i]);
+          this.flagNum--;  
         }
+        //这种方式刷新过多造成cpu占用过高而卡顿
+        //Vue.set(this.statusNow, i, this.statusNow[i]);
       } else {
         return;
       }
@@ -239,8 +240,7 @@ export default {
           }
         }
       }
-      Vue.set(this.statusNow, 0, this.statusNow[0]);
-
+      this.step ++
       this.second = 0;
       if (this.inerval == null) {
         this.inerval = setInterval(function() {
